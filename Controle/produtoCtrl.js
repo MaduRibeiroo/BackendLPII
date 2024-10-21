@@ -1,5 +1,6 @@
 //É a classe responsável por traduzir requisições HTTP e produzir respostas HTTP
 import Produto from "../Modelo/produto.js";
+import Categoria from "../Modelo/categoria.js";
 
 export default class ProdutoCtrl{
 
@@ -14,15 +15,17 @@ export default class ProdutoCtrl{
             const qtdEstoque = requisicao.body.qtdEstoque;
             const urlImagem  = requisicao.body.urlImagem;
             const dataValidade = requisicao.body.dataValidade;
+            const categoria = requisicao.body.categoria;
             //pseudo validação
             if (descricao && precoCusto > 0 &&
                 precoVenda > 0 && qtdEstoque >= 0 &&
-                urlImagem && dataValidade)
+                urlImagem && dataValidade && categoria.codigo > 0)
             {
                 //gravar o produto
+                const categ = new Categoria(categoria.codigo);
                 const produto = new Produto(0,
                     descricao, precoCusto, precoVenda,
-                    qtdEstoque,urlImagem,dataValidade);
+                    qtdEstoque,urlImagem,dataValidade,categ);
                 
                 produto.incluir()
                 .then(()=>{
@@ -74,15 +77,17 @@ export default class ProdutoCtrl{
             const qtdEstoque = requisicao.body.qtdEstoque;
             const urlImagem  = requisicao.body.urlImagem;
             const dataValidade = requisicao.body.dataValidade;
+            const categoria = requisicao.body.categoria;
             //pseudo validação
             if (codigo > 0 && descricao && precoCusto > 0 &&
                 precoVenda > 0 && qtdEstoque >= 0 &&
-                urlImagem && dataValidade)
+                urlImagem && dataValidade && categoria.codigo > 0)
             {
                 //alterar o produto
+                const categ = new Categoria(categoria.codigo)
                 const produto = new Produto(codigo,
                     descricao, precoCusto, precoVenda,
-                    qtdEstoque,urlImagem,dataValidade);
+                    qtdEstoque,urlImagem,dataValidade,categ);
                 produto.alterar()
                 .then(()=>{
                     resposta.status(200).json({
@@ -189,7 +194,7 @@ export default class ProdutoCtrl{
                 resposta.status(500).json(
                     {
                         "status":false,
-                        "mensagem":"Erro ao consultar produtos"    
+                        "mensagem":"Erro ao consultar produtos: " + erro.message    
                     }
                 );
             });
